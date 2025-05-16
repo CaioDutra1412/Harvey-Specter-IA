@@ -1,0 +1,10 @@
+# Ignora o arquivo .env que contém segredos
+.env
+
+# Ignora a pasta do ambiente virtual
+venv/
+
+# Adicione outras pastas ou arquivos que você não quer versionar, como:
+# __pycache__/
+# *.pyc
+# .idea/  # Arquivos de configuração do PyCharm (opcional, se não quiser compartilhar)

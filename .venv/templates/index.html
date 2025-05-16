@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvey Specter IA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Harvey Specter IA</h2>
+            <button id="new-chat-button">Nova Conversa</button>
+        </div>
+        <div class="chatbox" id="chatbox">
+            <div class="message assistant-message">
+                Olá! Sou Harvey Specter IA. Como posso te ajudar com questões legais ou processos administrativos hoje? Pode fazer upload de arquivos (imagens ou PDFs) também!
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Digite sua mensagem...">
+            <input type="file" id="file-input" accept="image/*,application/pdf" style="display: none;">
+            <label for="file-input" class="upload-button">📎 Anexar</label>
+            <button id="send-button">Enviar</button>
+        </div>
+         <div class="file-preview" id="file-preview" style="display: none;">
+            <span id="file-name"></span>
+            <button id="clear-file">x</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
