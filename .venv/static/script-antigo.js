@@ -20,23 +20,14 @@ document.addEventListener('DOMContentLoaded', function() {
             messageElement.innerHTML = marked.parse(message);
         } else {
             // Para mensagens do usuário, apenas define o texto
-            messageElement.textContent = message; // Usar textContent é mais seguro para inputs de usuário
+            messageElement.textContent = message; // Usar textContent é mais seguro para inputs de usuário crus
+             // No entanto, se o usuário puder usar negrito/italico simples, innerHTML pode ser aceitável,
+             // mas é preciso cuidado. Mantendo textContent por segurança.
+            // messageElement.innerHTML = message;
         }
 
-        // Adiciona animação de entrada
-        messageElement.style.opacity = '0';
-        messageElement.style.transform = 'translateY(10px)';
-        
+
         chatbox.appendChild(messageElement);
-        
-        // Força reflow para garantir que a animação funcione
-        void messageElement.offsetWidth;
-        
-        // Aplica a animação
-        messageElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        messageElement.style.opacity = '1';
-        messageElement.style.transform = 'translateY(0)';
-        
         chatbox.scrollTop = chatbox.scrollHeight;
     }
 
@@ -49,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Arquivo anexado (fileToSend):", fileToSend);
         console.log("---------------------------------");
 
+
         if (!message && !fileToSend) {
             console.log("Nenhuma mensagem ou arquivo para enviar. Abortando.");
             return;
@@ -58,8 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (message) {
             addMessage(message, 'user');
         } else if (fileToSend) {
-            addMessage(`Arquivo anexado: ${fileToSend.name}`, 'user'); // Indica que um arquivo foi enviado
+             addMessage(`Arquivo anexado: ${fileToSend.name}`, 'user'); // Indica que um arquivo foi enviado
         }
+
 
         const formData = new FormData();
         formData.append('user_input', message);
@@ -73,15 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         console.log("---------------------------------");
 
+
         userInput.value = '';
         sendButton.disabled = true;
         fileInput.disabled = true;
         newChatButton.disabled = true;
 
-        // Novo indicador de digitação com pontos animados
         const typingIndicator = document.createElement('div');
         typingIndicator.classList.add('message', 'assistant-message', 'typing-indicator');
-        typingIndicator.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+        typingIndicator.innerHTML = '<span class="typing-dot">.</span><span class="typing-dot">.</span><span class="typing-dot">.</span>';
         chatbox.appendChild(typingIndicator);
         chatbox.scrollTop = chatbox.scrollHeight;
 
@@ -102,18 +95,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Resposta da IA recebida:", data);
 
             if (chatbox.contains(typingIndicator)) {
-                // Animação de saída para o indicador de digitação
-                typingIndicator.style.opacity = '0';
-                setTimeout(() => {
-                    if (chatbox.contains(typingIndicator)) {
-                        chatbox.removeChild(typingIndicator);
-                    }
-                    // Usa a função addMessage, que agora converte Markdown
-                    addMessage(data.response, 'assistant');
-                }, 300);
-            } else {
-                addMessage(data.response, 'assistant');
+                chatbox.removeChild(typingIndicator);
             }
+
+            // Usa a função addMessage, que agora converte Markdown
+            addMessage(data.response, 'assistant');
 
             if (fileToSend) {
                 filePreview.style.display = 'none';
@@ -122,13 +108,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileInput.value = '';
             }
 
+
         } catch (error) {
             console.error('Erro durante a requisição /ask:', error);
-            if (chatbox.contains(typingIndicator)) {
+             if (chatbox.contains(typingIndicator)) {
                 chatbox.removeChild(typingIndicator);
             }
             addMessage('Desculpe, ocorreu um erro ao processar sua solicitação.', 'assistant');
-            if (fileToSend) {
+             if (fileToSend) {
                 filePreview.style.display = 'none';
                 fileNameSpan.textContent = '';
                 attachedFile = null;
@@ -136,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
         } finally {
-            console.log("Requisição /ask finalizada.");
+             console.log("Requisição /ask finalizada.");
             sendButton.disabled = false;
             fileInput.disabled = false;
             newChatButton.disabled = false;
@@ -148,37 +135,14 @@ document.addEventListener('DOMContentLoaded', function() {
         sendButton.disabled = true;
         fileInput.disabled = true;
 
-        // Animação de saída para todas as mensagens existentes
-        const existingMessages = chatbox.querySelectorAll('.message');
-        existingMessages.forEach(msg => {
-            msg.style.opacity = '0';
-            msg.style.transform = 'translateY(-10px)';
-        });
+        chatbox.innerHTML = '';
+        const initialMessage = document.createElement('div');
+        initialMessage.classList.add('message', 'assistant-message');
+         // Converte a mensagem inicial também, caso ela contenha Markdown
+        initialMessage.innerHTML = marked.parse('Olá! Sou Harvey Specter IA. Como posso te ajudar com questões legais ou processos administrativos hoje? Pode fazer upload de arquivos (imagens ou PDFs) também!');
 
-        // Aguarda a animação terminar antes de limpar
-        setTimeout(() => {
-            chatbox.innerHTML = '';
-            const initialMessage = document.createElement('div');
-            initialMessage.classList.add('message', 'assistant-message');
-            // Converte a mensagem inicial também, caso ela contenha Markdown
-            initialMessage.innerHTML = marked.parse('Olá! Sou Harvey Specter IA. Como posso te ajudar com questões legais ou processos administrativos hoje?');
-            
-            // Inicia com opacidade 0 para animar entrada
-            initialMessage.style.opacity = '0';
-            initialMessage.style.transform = 'translateY(10px)';
-            
-            chatbox.appendChild(initialMessage);
-            
-            // Força reflow
-            void initialMessage.offsetWidth;
-            
-            // Aplica animação de entrada
-            initialMessage.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            initialMessage.style.opacity = '1';
-            initialMessage.style.transform = 'translateY(0)';
-            
-            chatbox.scrollTop = chatbox.scrollHeight;
-        }, 300);
+        chatbox.appendChild(initialMessage);
+        chatbox.scrollTop = chatbox.scrollHeight;
 
         userInput.value = '';
         filePreview.style.display = 'none';
@@ -194,37 +158,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!response.ok) {
                 console.error('Erro ao limpar histórico no backend:', response.statusText);
-                // A mensagem de erro pode ser adicionada diretamente, sem conversão Markdown
-                setTimeout(() => {
-                    addMessage('Houve um erro ao reiniciar a conversa no servidor. A interface foi limpa, mas o histórico anterior pode ter sido mantido.', 'assistant');
-                }, 500);
+                 // A mensagem de erro pode ser adicionada diretamente, sem conversão Markdown
+                 addMessage('Houve um erro ao reiniciar a conversa no servidor. A interface foi limpa, mas o histórico anterior pode ter sido mantido.', 'assistant');
             } else {
                 console.log('Histórico de conversa limpo no backend.');
             }
         } catch (error) {
             console.error('Erro ao conectar com o backend para limpar histórico:', error);
-            // A mensagem de erro pode ser adicionada diretamente, sem conversão Markdown
-            setTimeout(() => {
-                addMessage('Houve um erro ao comunicar com o servidor para reiniciar a conversa. A interface foi limpa, mas o histórico anterior pode ter sido mantido.', 'assistant');
-            }, 500);
+             // A mensagem de erro pode ser adicionada diretamente, sem conversão Markdown
+             addMessage('Houve um erro ao comunicar com o servidor para reiniciar a conversa. A interface foi limpa, mas o histórico anterior pode ter sido mantido.', 'assistant');
         } finally {
             console.log("Requisição /clear_history finalizada.");
-            setTimeout(() => {
-                newChatButton.disabled = false;
-                sendButton.disabled = false;
-                fileInput.disabled = false;
-            }, 300);
+            newChatButton.disabled = false;
+            sendButton.disabled = false;
+            fileInput.disabled = false;
         }
     }
 
-    // Efeito de foco no input
-    userInput.addEventListener('focus', function() {
-        this.parentElement.classList.add('input-focused');
-    });
-
-    userInput.addEventListener('blur', function() {
-        this.parentElement.classList.remove('input-focused');
-    });
 
     sendButton.addEventListener('click', sendMessage);
 
@@ -239,17 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.files.length > 0) {
             attachedFile = this.files[0];
             fileNameSpan.textContent = attachedFile.name;
-            
-            // Animação de entrada para o preview do arquivo
-            filePreview.style.opacity = '0';
             filePreview.style.display = 'flex';
-            
-            // Força reflow
-            void filePreview.offsetWidth;
-            
-            // Aplica animação
-            filePreview.style.transition = 'opacity 0.3s ease';
-            filePreview.style.opacity = '1';
         } else {
             attachedFile = null;
             fileNameSpan.textContent = '';
@@ -258,16 +198,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     clearFileButton.addEventListener('click', function() {
-        // Animação de saída para o preview do arquivo
-        filePreview.style.opacity = '0';
-        
-        setTimeout(() => {
-            attachedFile = null;
-            fileInput.value = '';
-            fileNameSpan.textContent = '';
-            filePreview.style.display = 'none';
-        }, 300);
+        attachedFile = null;
+        fileInput.value = '';
+        fileNameSpan.textContent = '';
+        filePreview.style.display = 'none';
     });
 
-    newChatButton.addEventListener('click', startNewChat);
+     newChatButton.addEventListener('click', startNewChat);
+
+     // Opcional: Converte a mensagem inicial ao carregar, caso não esteja no HTML diretamente
+     // const initialMessageDiv = chatbox.querySelector('.assistant-message');
+     // if (initialMessageDiv && initialMessageDiv.innerHTML.includes('*')) { // Checa se contém * para evitar processar texto simples
+     //     initialMessageDiv.innerHTML = marked.parse(initialMessageDiv.innerHTML);
+     // }
+
+
 });
